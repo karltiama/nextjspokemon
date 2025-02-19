@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import debounce from 'lodash/debounce'
 import { PokemonTCG } from 'pokemon-tcg-sdk-typescript'
+import { useRouter } from 'next/navigation'
 
 // Simple cache interface
 interface Cache {
@@ -20,6 +21,7 @@ const searchCache: Cache = {};
 const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
 
 export default function SearchBar() {
+  const router = useRouter()
   const [search, setSearch] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -37,7 +39,8 @@ export default function SearchBar() {
 
     setIsLoading(true);
     try {
-      const cards = await PokemonTCG.findCardsByQueries({ q: `name:${query}*` })
+      // Simplify the query format
+      const cards = await PokemonTCG.findCardsByQueries({ q: `name:*${query}*` })
       
       // Update cache
       searchCache[query] = {
@@ -48,6 +51,7 @@ export default function SearchBar() {
       setSearchResults(cards.slice(0, 10))
     } catch (error) {
       console.error("Error searching cards:", error)
+      setSearchResults([]) // Clear results on error
     }
     setIsLoading(false)
   }
@@ -76,6 +80,10 @@ export default function SearchBar() {
     };
   }, [debouncedFetch]);
 
+  const handleCardClick = (cardId: string) => {
+    router.push(`/card/${cardId}`)
+  }
+
   return (
     <div className="relative w-full max-w-sm mx-auto">
       <form onSubmit={(e) => e.preventDefault()} className="flex items-center space-x-2">
@@ -94,7 +102,11 @@ export default function SearchBar() {
       {searchResults.length > 0 && (
         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
           {searchResults.map((card) => (
-            <div key={card.id} className="p-2 hover:bg-gray-100 cursor-pointer">
+            <div 
+              key={card.id} 
+              className="p-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleCardClick(card.id)}
+            >
               <div className="flex items-center">
                 <img src={card.images.small} alt={card.name} className="h-8 w-8 object-cover rounded" />
                 <span className="ml-2">{card.name}</span>
