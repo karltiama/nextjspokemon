@@ -1,2 +1,4 @@
-import { Card } from 'pokemon-tcg-sdk-typescript'
-Card.configure({ apiKey: process.env.NEXT_PUBLIC_POKEMON_TCG_API_KEY }) 
+import { PokemonTCG } from 'pokemon-tcg-sdk-typescript'
+
+// The SDK automatically uses the API key from environment
+export const pokemonTcgApi = PokemonTCG 
