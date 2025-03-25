@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div>
       <SearchBar />
-      <TestApiResponse />
+      {/* <TestApiResponse /> */}
     </div>
   );
 }
