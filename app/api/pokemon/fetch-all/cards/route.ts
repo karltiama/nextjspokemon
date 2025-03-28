@@ -4,61 +4,39 @@ import { supabase } from '@/app/lib/supabase'
 
 export async function GET() {
   try {
-    // 1. Fetch all cards including reverse holos
-    const cards = await PokemonTCG.getAllCards()
-    console.log(`Fetched ${cards.length} cards from API`)
+    // Test with a specific set to see variants
+    const cards = await PokemonTCG.findCardsByQueries({ 
+      q: 'set.id:sv1' // Using Scarlet & Violet base set as example
+    })
 
-    // 2. Transform and store cards
-    const formattedCards = cards.map(card => ({
-      id: card.id,
-      name: card.name,
-      supertype: card.supertype,
-      subtypes: card.subtypes,
-      hp: card.hp,
-      types: card.types,
-      evolves_from: card.evolvesFrom,
-      number: card.number,
-      artist: card.artist,
-      rarity: card.rarity,
-      flavor_text: card.flavorText,
-      national_pokedex_numbers: card.nationalPokedexNumbers,
-      image_small: card.images.small,
-      image_large: card.images.large,
-      set_id: card.set.id,
-      abilities: card.abilities,
-      attacks: card.attacks,
-      weaknesses: card.weaknesses,
-      retreat_cost: card.retreatCost,
-      converted_retreat_cost: card.convertedRetreatCost,
-      legalities: card.legalities,
-    }))
-
-    // 3. Store cards in batches
-    const batchSize = 50
-    let storedCards = 0
-    for (let i = 0; i < formattedCards.length; i += batchSize) {
-      const batch = formattedCards.slice(i, i + batchSize)
-      const { error } = await supabase
-        .from('cards')
-        .upsert(batch)
-
-      if (error) throw new Error(`Error inserting cards batch ${i}: ${error.message}`)
-      storedCards += batch.length
-      console.log(`Inserted batch ${i / batchSize + 1} of cards (${storedCards}/${formattedCards.length})`)
-    }
-
-    // 4. Verify cards in database
-    const { count: dbCount, error: countError } = await supabase
-      .from('cards')
-      .select('*', { count: 'exact', head: true })
-
-    if (countError) throw countError
+    // Log card variants to see what's available
+    cards.slice(0, 5).forEach(card => {
+      console.log({
+        name: card.name,
+        number: card.number,
+        id: card.id,
+        rarity: card.rarity,
+        variants: {
+          holofoil: card.tcgplayer?.prices?.holofoil || null,
+          reverseHolofoil: card.tcgplayer?.prices?.reverseHolofoil || null,
+          normal: card.tcgplayer?.prices?.normal || null,
+        }
+      })
+    })
 
     return NextResponse.json({
-      message: 'All cards fetched and stored successfully',
-      totalCardsFromAPI: cards.length,
-      totalCardsStored: storedCards,
-      cardsInDatabase: dbCount
+      message: 'Card variants checked',
+      sampleCards: cards.slice(0, 5).map(card => ({
+        name: card.name,
+        number: card.number,
+        id: card.id,
+        rarity: card.rarity,
+        variants: {
+          holofoil: card.tcgplayer?.prices?.holofoil || null,
+          reverseHolofoil: card.tcgplayer?.prices?.reverseHolofoil || null,
+          normal: card.tcgplayer?.prices?.normal || null,
+        }
+      }))
     })
 
   } catch (error: unknown) {

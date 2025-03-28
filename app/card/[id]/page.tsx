@@ -1,6 +1,7 @@
 import { PokemonTCG } from 'pokemon-tcg-sdk-typescript'
 import Image from 'next/image'
 import RecentSales from '../../components/RecentSales'
+import { Button } from "@/components/ui/button"
 
 async function getCard(id: string) {
   try {
@@ -23,6 +24,10 @@ export default async function CardPage({ params }: { params: { id: string } }) {
     // Add delay between Pokemon TCG API call and eBay API call
     await new Promise(resolve => setTimeout(resolve, 1000))
 
+    const ebaySearchUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(
+      `${card.name} ${card.set.name} pokemon card`
+    )}&_sacat=0`
+
     return (
       <div className="container mx-auto p-4">
         <div className="max-w-4xl mx-auto">
@@ -39,9 +44,16 @@ export default async function CardPage({ params }: { params: { id: string } }) {
             </div>
 
             {/* Card Details */}
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h1 className="text-3xl font-bold">{card.name}</h1>
               
+              {/* Add eBay Button */}
+              <a href={ebaySearchUrl} target="_blank" rel="noopener noreferrer">
+                <Button className="w-full bg-blue-500 hover:bg-blue-600">
+                  View on eBay
+                </Button>
+              </a>
+
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>

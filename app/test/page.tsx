@@ -134,6 +134,24 @@ export default function TestPage() {
         >
           Fetch & Store All Cards
         </button>
+
+        <button
+          onClick={async () => {
+            try {
+              const response = await fetch('/api/pokemon/test-variants')
+              const result = await response.json()
+              if (!response.ok) throw new Error(result.error)
+              setData(result)
+              setStatus(`Variants test complete! Found ${result.totalCards} cards with variant data`)
+            } catch (err: any) {
+              setError(err.message)
+              setStatus('Failed to test variants')
+            }
+          }}
+          className="px-4 py-2 bg-purple-500 text-white rounded"
+        >
+          Test Card Variants
+        </button>
       </div>
 
       <div className="mb-4">
