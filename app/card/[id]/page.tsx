@@ -15,7 +15,7 @@ async function getCard(id: string) {
 
 export default async function CardPage({ params }: { params: { id: string } }) {
   try {
-    const card = await getCard(await params.id)
+    const card = await getCard(params.id)
     
     if (!card) {
       throw new Error('Card not found')

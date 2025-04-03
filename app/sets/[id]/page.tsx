@@ -5,25 +5,24 @@ import Link from 'next/link'
 import TopReverseHolos from '@/app/components/TopReverseHolos'
 
 export default async function SetPage({ params }: { params: { id: string } }) {
-  // Await the ID first
-  const setId = await Promise.resolve(params.id)
+  const { id } = await params
   
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  // Use setId instead of params.id
+  // Use id instead of params.id
   const { data: set } = await supabase
     .from('sets')
     .select('*')
-    .eq('id', setId)
+    .eq('id', id)
     .single()
 
   const { data: cards } = await supabase
     .from('cards')
     .select('*')
-    .eq('set_id', setId)  // Use setId here too
+    .eq('set_id', id)  // Use id here too
     .order('number')
 
   return (
